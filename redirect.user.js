@@ -4,6 +4,8 @@
 // @version      1.0
 // @description  Rewrites /charts links to open the all-device, all-country view
 // @author       CountMyBands
+// @homepageURL  https://github.com/countmybands/Userscripts
+// @icon         https://www.roblox.com/favicon.ico
 // @match        https://www.roblox.com/*
 // @grant        none
 // @downloadURL  https://raw.githubusercontent.com/countmybands/Userscripts/main/redirect.user.js
