@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Roblox Charts Revenue
 // @namespace    https://github.com/CountMyBands/Userscripts
-// @version      2.0
+// @version      2.1
 // @description  Adds estimated revenue under each game title on the Roblox charts page
 // @author       CountMyBands
 // @homepageURL  https://github.com/CountMyBands/Userscripts
@@ -178,6 +178,38 @@
         white-space: nowrap;
     }
 
+    .revenue-control-bar {
+        margin: 10px 0;
+        padding-left: 10px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        width: 100%;
+        box-sizing: border-box;
+    }
+
+    .revenue-refresh-button {
+        padding: 7px 12px;
+        border: 1px solid #777;
+        border-radius: 4px;
+        background: #191b1f;
+        color: #f2f4f5;
+        font-size: 14px;
+        font-weight: 600;
+        line-height: 1.2;
+        cursor: pointer;
+    }
+
+    .revenue-refresh-button:hover:not(:disabled) {
+        background: #24272d;
+        border-color: #999;
+    }
+
+    .revenue-refresh-button:disabled {
+        cursor: default;
+        opacity: 0.65;
+    }
+
     `;
     document.head.appendChild(style);
     console.log("Revenue CSS injected.");
@@ -290,7 +322,7 @@
     // 3. Revenue fetching + caching
     // ===========================
     // The configured provider serves an hourly cached revenue snapshot for games on
-    // Roblox's top-earning chart. IDs outside the cached snapshot display as N/A.
+    // Roblox's top-earning chart. IDs outside the cached snapshot do not show a badge.
     const revCache = new Map(); // universeId -> number|null (resolved value)
     const pending = new Map();  // universeId -> in-flight Promise
     let updateScheduled = false;
@@ -335,6 +367,12 @@
         try {
             sessionStorage.setItem(SS_PREFIX + universeId, JSON.stringify({ v: value, t: Date.now() }));
         } catch (e) { /* storage full / blocked - ignore */ }
+    }
+
+    function removeSession(universeId) {
+        try {
+            sessionStorage.removeItem(SS_PREFIX + universeId);
+        } catch (e) { /* ignore */ }
     }
 
     function revenueOf(entry) {
@@ -442,13 +480,19 @@
             if (revElem.dataset.universeId !== id) return; // tile reused meanwhile
             if (!revCache.has(id)) return;
             const f = formatRevenue(revCache.get(id));
-            revElem.textContent = f ? (f + ' USD') : 'N/A';
+            if (f) {
+                revElem.style.display = '';
+                revElem.textContent = f + ' USD';
+            } else {
+                revElem.textContent = '';
+                revElem.style.display = 'none';
+            }
         });
     }
 
     function updateRevenueOverlays() {
         const gameGrid = document.querySelector('div[data-testid="game-grid"]');
-        if (!gameGrid) return;
+        if (!gameGrid) return Promise.resolve(false);
 
         const gameCards = gameGrid.querySelectorAll('div[data-testid="game-tile"]');
         const pairs = [];
@@ -470,6 +514,7 @@
             // Tiles get recycled as you scroll; reset only when the game changes.
             if (revElem.dataset.universeId !== universeId) {
                 revElem.dataset.universeId = universeId;
+                revElem.style.display = '';
                 revElem.textContent = '--';
             }
 
@@ -490,12 +535,16 @@
         // Show a loading state on the ones we still need.
         let anyNeed = false;
         pairs.forEach(({ revElem, id }) => {
-            if (revElem.dataset.universeId === id && !revCache.has(id)) { revElem.textContent = '...'; anyNeed = true; }
+            if (revElem.dataset.universeId === id && !revCache.has(id)) {
+                revElem.style.display = '';
+                revElem.textContent = '...';
+                anyNeed = true;
+            }
         });
-        if (!anyNeed) return;
+        if (!anyNeed) return Promise.resolve(false);
 
         // Paint after every batch so cards fill in as requests complete.
-        ensureRevenue(ids, () => paint(pairs))
+        return ensureRevenue(ids, () => paint(pairs))
             .then(() => { paint(pairs); })
             .catch((e) => {
                 console.error('[Revenue] request failed:', e);
@@ -505,6 +554,77 @@
                     }
                 });
             });
+    }
+
+    function visibleUniverseIds() {
+        const gameGrid = document.querySelector('div[data-testid="game-grid"]');
+        if (!gameGrid) return [];
+
+        const ids = [];
+        gameGrid.querySelectorAll('div[data-testid="game-tile"]').forEach((card) => {
+            const gameLink = card.querySelector('a.game-card-link');
+            const universeId = gameLink ? gameLink.id : null;
+            if (universeId) ids.push(universeId);
+        });
+
+        return Array.from(new Set(ids));
+    }
+
+    async function refreshVisibleRevenue(button) {
+        if (button.dataset.refreshing === 'true') return;
+
+        button.dataset.refreshing = 'true';
+        button.disabled = true;
+        button.textContent = 'Refreshing...';
+
+        const ids = visibleUniverseIds();
+        lastFetchErrorAt = 0;
+        pending.clear();
+
+        ids.forEach((id) => {
+            revCache.delete(id);
+            removeSession(id);
+        });
+
+        document.querySelectorAll('.revenue-overlay').forEach((el) => {
+            if (!el.dataset.universeId || ids.includes(el.dataset.universeId)) {
+                el.style.display = '';
+                el.textContent = '...';
+            }
+        });
+
+        try {
+            await updateRevenueOverlays();
+        } finally {
+            button.disabled = false;
+            button.textContent = 'Refresh revenue';
+            delete button.dataset.refreshing;
+        }
+    }
+
+    function createControlBar() {
+        if (document.querySelector('.revenue-control-bar')) return;
+
+        const bar = document.createElement('div');
+        bar.className = 'revenue-control-bar';
+
+        const refreshButton = document.createElement('button');
+        refreshButton.type = 'button';
+        refreshButton.className = 'revenue-refresh-button';
+        refreshButton.textContent = 'Refresh revenue';
+        refreshButton.addEventListener('click', () => refreshVisibleRevenue(refreshButton));
+        bar.appendChild(refreshButton);
+
+        const searchBar = document.querySelector('.roblox-top-earning-search-container');
+        if (searchBar && searchBar.parentNode) {
+            searchBar.parentNode.insertBefore(bar, searchBar.nextSibling);
+            return;
+        }
+
+        const heading = document.querySelector('h1');
+        if (heading && heading.parentNode) {
+            heading.parentNode.insertBefore(bar, heading.nextSibling);
+        }
     }
 
     // ===========================
@@ -528,6 +648,7 @@
         if (gameGrid && !gameGrid.hasAttribute('data-revenue-observed')) {
             gameGrid.setAttribute('data-revenue-observed', 'true');
             console.log("Revenue: game grid found and observed.");
+            createControlBar();
             updateRevenueOverlays();
             observeGameGrid(gameGrid);
             if (attachObserver) {
