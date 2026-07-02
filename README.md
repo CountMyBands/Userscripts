@@ -2,6 +2,8 @@
 
 A small collection of [Tampermonkey](https://www.tampermonkey.net/) userscripts that enhance the [Roblox](https://www.roblox.com/) **Top Earning / Charts** page.
 
+> **Private / invite-only.** This repository is private. These scripts are shared manually with specific people and do **not** auto-update.
+
 ## Scripts
 
 | Script | Description |
@@ -10,26 +12,14 @@ A small collection of [Tampermonkey](https://www.tampermonkey.net/) userscripts 
 | [`redirect.user.js`](redirect.user.js) | Rewrites `/charts` links so they open the all-device, all-country view by default. |
 | [`search.user.js`](search.user.js) | Adds a search bar to the Top Earning page for filtering games by name. |
 
-## Installation
+## Installation (manual)
 
 1. Install the [Tampermonkey](https://www.tampermonkey.net/) browser extension.
-2. Click a script below — Tampermonkey will open an install page. Click **Install**.
+2. Open the script file you want in this repo and click **Raw** (or **Download raw file**) to view/download it.
+3. In Tampermonkey, open the **dashboard → Utilities → Import** (or create a new script and paste the contents).
+4. Save. The script is now installed.
 
-   - [Install Ranks](https://raw.githubusercontent.com/CountMyBands/Userscripts/main/ranks.user.js)
-   - [Install Redirect](https://raw.githubusercontent.com/CountMyBands/Userscripts/main/redirect.user.js)
-   - [Install Search](https://raw.githubusercontent.com/CountMyBands/Userscripts/main/search.user.js)
-
-Each script includes `@updateURL` / `@downloadURL`, so Tampermonkey checks this repo for updates automatically.
-
-## Updating
-
-To publish a change:
-
-1. Edit the script locally.
-2. **Bump the `@version`** in the metadata block (e.g. `1.0` → `1.1`) — this is required for Tampermonkey to pick up the update.
-3. Commit and push to this repo.
-
-Tampermonkey will update on its own schedule, or you can force it via **Tampermonkey → Utilities → Check for userscript updates**.
+Because the repo is private, scripts do not update automatically — to get a newer version, repeat the steps above with the updated file.
 
 ## Author
 

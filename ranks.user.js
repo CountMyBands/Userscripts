@@ -8,8 +8,6 @@
 // @icon         https://www.roblox.com/favicon.ico
 // @match        https://www.roblox.com/*
 // @grant        none
-// @downloadURL  https://raw.githubusercontent.com/countmybands/Userscripts/main/ranks.user.js
-// @updateURL    https://raw.githubusercontent.com/countmybands/Userscripts/main/ranks.user.js
 // ==/UserScript==
 
 (function() {
