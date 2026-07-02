@@ -128,6 +128,29 @@
         return url.toString();
     }
 
+    /*
+     * Provider contract:
+     *
+     * Request:
+     *   GET <provider-url>?apiKey=<key>&universeIds=123,456
+     *
+     * Response:
+     *   {
+     *     "ok": true,
+     *     "metric": "revenue",
+     *     "lastUpdated": "2026-07-02T13:00:00.000Z",
+     *     "sourceDate": "2026-07-02",
+     *     "count": 1,
+     *     "data": [
+     *       { "universeId": "123", "revenue": 12345.67 }
+     *     ],
+     *     "missingUniverseIds": ["456"]
+     *   }
+     *
+     * Only ok, data[].universeId, data[].revenue, and optional
+     * missingUniverseIds are required by this script.
+     */
+
     // ===========================
     // 1. Inject Custom CSS
     // ===========================
@@ -323,7 +346,7 @@
         writeSession(id, value);
     }
 
-    // Resolve a chunk of IDs into revCache. The stats API returns universeId on
+    // Resolve a chunk of IDs into revCache. The provider returns universeId on
     // each row, so map by ID instead of relying on response order or row count.
     async function resolveStatsRange(ids) {
         if (ids.length === 0) return;
