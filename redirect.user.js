@@ -1,3 +1,15 @@
+// ==UserScript==
+// @name         Roblox Charts Redirect
+// @namespace    http://tampermonkey.net/
+// @version      1.0
+// @description  Rewrites /charts links to open the all-device, all-country view
+// @author       CountMyBands
+// @match        https://www.roblox.com/*
+// @grant        none
+// @downloadURL  https://raw.githubusercontent.com/countmybands/Userscripts/main/redirect.user.js
+// @updateURL    https://raw.githubusercontent.com/countmybands/Userscripts/main/redirect.user.js
+// ==/UserScript==
+
 (function() {
     'use strict';
 

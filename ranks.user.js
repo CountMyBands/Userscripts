@@ -3,7 +3,7 @@
 // @namespace    http://tampermonkey.net/
 // @version      1.3
 // @description  Adds rank overlays on Roblox Top Earning page
-// @author       YourName
+// @author       CountMyBands
 // @match        https://www.roblox.com/*
 // @grant        none
 // @downloadURL  https://raw.githubusercontent.com/countmybands/Userscripts/main/ranks.user.js

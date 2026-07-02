@@ -1,17 +1,19 @@
+// ==UserScript==
+// @name         Roblox Charts Search
+// @namespace    http://tampermonkey.net/
+// @version      1.0
+// @description  Adds a search bar to filter games on the Roblox Top Earning charts page
+// @author       CountMyBands
+// @match        https://www.roblox.com/*
+// @grant        none
+// @downloadURL  https://raw.githubusercontent.com/countmybands/Userscripts/main/search.user.js
+// @updateURL    https://raw.githubusercontent.com/countmybands/Userscripts/main/search.user.js
+// ==/UserScript==
+
 (function() {
     'use strict';
-    
+
     console.log("Search started.");
-    
-    function initialize() {
-        if (!window.location.href.includes('/charts')) {
-            console.log("Not on charts page. Script will not run.");
-            return;
-        }
-
-        waitForElements();
-    }
-
 
     // ===========================
     // 1. Inject Custom CSS for Search Bar
@@ -151,7 +153,7 @@
             if (window.location.href.includes('/charts')) {
                 const heading = document.querySelector('h1');
                 const gameGrid = document.querySelector('div[data-testid="game-grid"]');
-                
+
                 // Check if search bar is already there
                 const existingSearchBar = document.querySelector('.roblox-top-earning-search-container');
 
@@ -162,9 +164,9 @@
                 }
             }
         });
-        
+
         observer.observe(document.body, { childList: true, subtree: true });
-        
+
         // Initial check
         if (window.location.href.includes('/charts')) {
             const heading = document.querySelector('h1');
