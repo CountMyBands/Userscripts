@@ -21,7 +21,7 @@
     function updateLinks(links) {
         links.forEach(link => {
             if (link.getAttribute('href') === '/charts') {
-                link.setAttribute('href', '/charts#/?device=all&country=all');
+                link.setAttribute('href', '/charts/?device=all&country=all');
             }
         });
     }
