@@ -1,15 +1,16 @@
 // ==UserScript==
 // @name         Roblox Chart Ranks
-// @namespace    http://tampermonkey.net/
-// @version      1.3
+// @namespace    https://github.com/CountMyBands/Userscripts
+// @version      1.4
 // @description  Adds rank overlays on Roblox Top Earning page
 // @author       CountMyBands
-// @homepageURL  https://github.com/countmybands/Userscripts
+// @homepageURL  https://github.com/CountMyBands/Userscripts
 // @icon         https://www.roblox.com/favicon.ico
 // @match        https://www.roblox.com/*
 // @grant        none
-// @downloadURL  https://raw.githubusercontent.com/countmybands/Userscripts/main/ranks.user.js
-// @updateURL    https://raw.githubusercontent.com/countmybands/Userscripts/main/ranks.user.js
+// @run-at       document-idle
+// @downloadURL  https://raw.githubusercontent.com/CountMyBands/Userscripts/main/ranks.user.js
+// @updateURL    https://raw.githubusercontent.com/CountMyBands/Userscripts/main/ranks.user.js
 // ==/UserScript==
 
 (function() {

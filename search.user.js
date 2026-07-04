@@ -1,15 +1,16 @@
 // ==UserScript==
 // @name         Roblox Charts Search
-// @namespace    http://tampermonkey.net/
-// @version      1.0
+// @namespace    https://github.com/CountMyBands/Userscripts
+// @version      1.1
 // @description  Adds a search bar to filter games on the Roblox Top Earning charts page
 // @author       CountMyBands
-// @homepageURL  https://github.com/countmybands/Userscripts
+// @homepageURL  https://github.com/CountMyBands/Userscripts
 // @icon         https://www.roblox.com/favicon.ico
 // @match        https://www.roblox.com/*
 // @grant        none
-// @downloadURL  https://raw.githubusercontent.com/countmybands/Userscripts/main/search.user.js
-// @updateURL    https://raw.githubusercontent.com/countmybands/Userscripts/main/search.user.js
+// @run-at       document-idle
+// @downloadURL  https://raw.githubusercontent.com/CountMyBands/Userscripts/main/search.user.js
+// @updateURL    https://raw.githubusercontent.com/CountMyBands/Userscripts/main/search.user.js
 // ==/UserScript==
 
 (function() {
