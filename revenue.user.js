@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Roblox Charts Revenue
 // @namespace    https://github.com/CountMyBands/Userscripts
-// @version      2.1
+// @version      2.2
 // @description  Adds estimated revenue under each game title on the Roblox charts page
 // @author       CountMyBands
 // @homepageURL  https://github.com/CountMyBands/Userscripts
@@ -116,23 +116,25 @@
         });
     }
 
-    function revenueApiUrl(universeIds) {
+    function revenueApiRequest(universeIds) {
         const settings = getProviderSettings();
         if (!settings) {
             throw new Error('Revenue provider URL and API key are required');
         }
 
+        // The key travels in the x-api-key header, never the URL: keys in
+        // URLs leak into history/logs and the provider rejects them.
         const url = new URL(settings.providerUrl);
-        url.searchParams.set("apiKey", settings.apiKey);
         url.searchParams.set("universeIds", universeIds.join(','));
-        return url.toString();
+        return { url: url.toString(), apiKey: settings.apiKey };
     }
 
     /*
      * Provider contract:
      *
      * Request:
-     *   GET <provider-url>?apiKey=<key>&universeIds=123,456
+     *   GET <provider-url>?universeIds=123,456
+     *   with header: x-api-key: <key>
      *
      * Response:
      *   {
@@ -240,13 +242,14 @@
         );
     }
 
-    function gmGet(url) {
+    function gmGet(request) {
         return new Promise((resolve, reject) => {
             GM_REQUEST({
                 method: 'GET',
-                url: url,
+                url: request.url,
                 headers: {
                     'Accept': 'application/json',
+                    'x-api-key': request.apiKey,
                 },
                 timeout: 20000,
                 onload: (res) => {
@@ -263,10 +266,10 @@
         });
     }
 
-    async function fetchGet(url) {
-        const res = await fetch(url, {
+    async function fetchGet(request) {
+        const res = await fetch(request.url, {
             method: 'GET',
-            headers: { 'Accept': 'application/json' },
+            headers: { 'Accept': 'application/json', 'x-api-key': request.apiKey },
             credentials: 'omit',
         });
 
@@ -277,11 +280,11 @@
         return res.json();
     }
 
-    async function apiGet(url) {
+    async function apiGet(request) {
         let gmError = null;
         if (GM_REQUEST) {
             try {
-                return await gmGet(url);
+                return await gmGet(request);
             } catch (err) {
                 gmError = err;
                 console.warn('[Revenue] GM request failed, trying fetch fallback:', err);
@@ -291,7 +294,7 @@
         }
 
         try {
-            return await fetchGet(url);
+            return await fetchGet(request);
         } catch (fetchError) {
             if (gmError) {
                 throw new Error('Tampermonkey @connect permission needs refresh for the configured revenue provider');
@@ -390,7 +393,7 @@
         if (ids.length === 0) return;
 
         const uniqueIds = Array.from(new Set(ids));
-        const data = await limited(() => apiGet(revenueApiUrl(uniqueIds)));
+        const data = await limited(() => apiGet(revenueApiRequest(uniqueIds)));
 
         if (!data || data.ok !== true || !Array.isArray(data.data)) {
             throw new Error('bad stats response');
